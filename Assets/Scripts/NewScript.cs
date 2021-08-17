@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class NewScript : MonoBehaviour
 {
+    public string serverUrl;
+    List<float> position = new List<float>();
     public InputField username;
     public InputField password;
     public int score;
@@ -16,6 +18,10 @@ public class NewScript : MonoBehaviour
     }
     void Start()
     {
+        position.Add(this.transform.position.x);
+        position.Add(this.transform.position.y);
+        position.Add(this.transform.position.z);
+
         Human human1 = new Human(15,"Ali","IRAN");
         Human human2 = new Human(22,"Jack","ENGLAND");
         Human human3 = new Human(50,"Paulo","BRAZIL");
@@ -29,6 +35,7 @@ public class NewScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        StartCoroutine(sendPos(serverUrl));
         float midScreen = Screen.width/2;
         if(Input.touchCount>0)
         {
@@ -73,6 +80,21 @@ public class NewScript : MonoBehaviour
                 score = int.Parse(request.downloadHandler.text.Split('\t')[1]);
 
             }
+        }
+        IEnumerator sendPos(string url)
+        {
+            UnityWebRequest request = UnityWebRequest.Get(url);
+            yield return request.SendWebRequest();
+
+            if(request.isHttpError || request.isNetworkError)
+            {
+                Debug.Log(request.error);
+            }
+            else
+            {
+                var posJSON = JsonUtility.ToJson(position);
+            }
+
         }      
 }
 public class Human{
